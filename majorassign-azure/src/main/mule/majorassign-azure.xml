@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:azure-storage="http://www.mulesoft.org/schema/mule/azure-storage" xmlns:azure-key-vault="http://www.mulesoft.org/schema/mule/azure-key-vault"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:azure-cosmos-db-connector-mule-4="http://www.mulesoft.org/schema/mule/azure-cosmos-db-connector-mule-4" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/azure-cosmos-db-connector-mule-4 http://www.mulesoft.org/schema/mule/azure-cosmos-db-connector-mule-4/current/mule-azure-cosmos-db-connector-mule-4.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/azure-key-vault http://www.mulesoft.org/schema/mule/azure-key-vault/current/mule-azure-key-vault.xsd
+http://www.mulesoft.org/schema/mule/azure-storage http://www.mulesoft.org/schema/mule/azure-storage/current/mule-azure-storage.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ae124b92-4476-4c3b-9ddf-78a15cfaca86" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<azure-cosmos-db-connector-mule-4:key-token-config name="Azure_Cosmos_Db_Key_Token_Config" doc:name="Azure Cosmos Db Key Token Config" doc:id="c4599269-0e22-4443-b537-ac25e8b7bf3a" >
+		<azure-cosmos-db-connector-mule-4:key-token-auth-connection baseUri="#[payload.uri]" key="#[payload.key]" version="2018-12-31" />
+	</azure-cosmos-db-connector-mule-4:key-token-config>
+	<azure-key-vault:config name="Azure_Key_Vault_Config" doc:name="Azure Key Vault Config" doc:id="b90f1f50-60f3-458f-8667-ca9d0f02e3e1" >
+		<azure-key-vault:connection clientId="167729fc-cd61-4d04-b8a8-21b123bbb697" tenantId="7e8b29c1-f85d-4332-854f-b884a82ab21a" clientSecret="aRf8Q~Y9Pg5qAj55VK~wHySGVta5f_2CCGKTAcIY" vaultName="navithakey" />
+	</azure-key-vault:config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="c4a03199-2c82-4e57-a390-4a86f8e3e9ae" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="e9614053-8312-4fd6-88f7-d0c8ff327e83" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config2" doc:name="HTTP Listener config" doc:id="16f46323-593a-4be2-956c-b73fb9bd2b99" >
+		<http:listener-connection host="0.0.0.0" port="8084" />
+	</http:listener-config>
+	<azure-storage:config name="Azure_Storage_Config" doc:name="Azure Storage Config" doc:id="4d38637b-7ba7-40e8-bb73-f3f93bf7a763" >
+		<azure-storage:access-key-azure-connection accountName="azuremulesoftassign" accountKey="DefaultEndpointsProtocol=https;AccountName=azuremulesoftassign;AccountKey=dZSBigocFuh6CvNWkdNUHAjSaNPYLOta7Ta3PEWMRbhixzaR91XajmG2iBm+foS4oSJNQyZPX1cg+AStCqd3OQ==;EndpointSuffix=core.windows.net" />
+	</azure-storage:config>
+	<flow name="majorassign-getDetails" doc:id="85e6753b-2f87-45e9-9286-cc7e85761e35" >
+		<http:listener doc:name="Listener" doc:id="5c556204-3dd9-457e-908f-108170000deb" config-ref="HTTP_Listener_config" path="/get">
+			<http:response >
+				<http:body ><![CDATA[#[output application/json --- payload]]]></http:body>
+			</http:response>
+		</http:listener>
+		<azure-key-vault:get-secret doc:name="Get Secret" doc:id="01686e46-ec6b-4cb4-984a-6e11cb2bcb5d" config-ref="Azure_Key_Vault_Config" name="key" version="4a1aff1a10494068b6d96b99bbd73582"/>
+		<set-variable value="#[payload.value]" doc:name="Set Variable" doc:id="7aa9b5a0-1c39-4c30-bdff-52e2d40ec8dc" variableName="key"/>
+		<azure-key-vault:get-secret doc:name="Get Secret" doc:id="957b542e-7044-4f40-8a02-26bd6e5ad5ba" config-ref="Azure_Key_Vault_Config" name="database" version="53b3529784784a66b6ae03f221bd24bf"/>
+		<set-variable value="#[payload.value]" doc:name="Set Variable" doc:id="e5ce7b5c-b167-46dd-bf5c-9aeb2e18b603" variableName="database"/>
+		<azure-key-vault:get-secret doc:name="Get Secret" doc:id="cf661d6a-2f97-4267-b399-06ab3fb64f38" config-ref="Azure_Key_Vault_Config" name="uri" version="ece01caceb5d4a769daa6e277ad48008"/>
+		<set-variable value="#[payload.value]" doc:name="Set Variable" doc:id="49e8a025-1c90-4641-bfaa-26cddb4100ea" variableName="uri"/>
+<ee:transform doc:name="Transform Message" doc:id="0dd3868c-d383-4ce1-b4be-def091b7ebf3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"key": vars.key,
+	"uri": vars.uri,
+	"database" : vars.database
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="majorassign-createRecord" doc:id="3c4fbc1d-aeed-47b2-ad51-05fc61caf346" >
+		<http:listener doc:name="Listener" doc:id="6d9662f0-35de-4508-be2c-e35d28c7f577" config-ref="HTTP_Listener_config1" path="/create"/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="c52a6354-0848-4f7b-886f-3b0feb5e90c8" variableName="originalpayload"/>
+		<http:request method="GET" doc:name="Request" doc:id="07acab4d-b87a-4cdd-a5df-90c4d2944c74" config-ref="HTTP_Request_configuration" path="/get"/>
+		<ee:transform doc:name="Transform Message" doc:id="24c5b5d5-a88c-4e74-9385-a099cb6d3dc0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<azure-cosmos-db-connector-mule-4:create-document doc:name="Create Document" doc:id="21ae5d55-9706-4891-b11d-1a0c2510d39c" config-ref="Azure_Cosmos_Db_Key_Token_Config" dbIdUriParam="students" collIdUriParam="items" xMsIndexingDirectiveHeader="INCLUDE" xMsDocumentdbPartitionkeyHeader="#[write([vars.originalpayload.id], 'application/json')]" >
+			<azure-cosmos-db-connector-mule-4:create-document-body ><![CDATA[#[vars.originalpayload]]]></azure-cosmos-db-connector-mule-4:create-document-body>
+		</azure-cosmos-db-connector-mule-4:create-document>
+	</flow>
+	<flow name="majorassign-updateRecord" doc:id="17c3c2ae-74b6-4df0-ba1b-af2a03da2d74" >
+		<http:listener doc:name="Listener" doc:id="3b97015d-a2fd-493c-ae7f-d67b746a56b3" config-ref="HTTP_Listener_config2" path="/update"/>
+		<http:request method="GET" doc:name="Request" doc:id="cc593551-a894-4139-b8f1-327f9debe40f" config-ref="HTTP_Request_configuration" path="/get"/>
+		<azure-cosmos-db-connector-mule-4:list-documents doc:name="List Documents" doc:id="44ddb30b-d0ef-495c-b454-5574825e39cf" config-ref="Azure_Cosmos_Db_Key_Token_Config" dbIdUriParam="students" collIdUriParam="items" />
+		<ee:transform doc:name="Transform Message" doc:id="759201ef-0129-4881-88a9-f35ff6be27ad" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<azure-storage:upload-blob doc:name="Upload blob" doc:id="f1d0d822-253d-4584-866e-4637f87418eb" config-ref="Azure_Storage_Config">
+			<azure-storage:storblob container='#["majorassign"]' fileName='#["records.json"]' fileStream="#[payload]" />
+		</azure-storage:upload-blob>
+		<ee:transform doc:name="Transform Message" doc:id="eb39766e-1c86-4395-b5ab-eba760ba4f80" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
